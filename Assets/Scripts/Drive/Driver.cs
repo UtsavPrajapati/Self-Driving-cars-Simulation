@@ -160,11 +160,19 @@ public class Driver : MonoBehaviour
 
             angle = Vector3.SignedAngle(target, transform.forward, new Vector3(0, -1, 0));
             
-            
-            angle = Mathf.Abs(lane_angle)> Mathf.Abs(angle)? lane_angle:angle/50 ;
            
             
+            if(Mathf.Abs(lane_angle) > Mathf.Abs(angle))
+            {
+                angle = lane_angle;
+            }
+           
+            else
+            {
+                angle = angle / 50;
+            }
             
+
             Quaternion rot = Quaternion.AngleAxis(angle, new Vector3(0, 1, 0));
             
             //transform.position = rot * (transform.position - pivotPoint) + pivotPoint;
