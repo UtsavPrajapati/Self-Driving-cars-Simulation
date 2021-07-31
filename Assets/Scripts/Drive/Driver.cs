@@ -10,6 +10,7 @@ public class Driver : MonoBehaviour
     public GameObject nodes_graph;
     private AStarManager astar;
 
+    public GameObject lanecheck;
     public GameObject r1;
     public GameObject l1;
 
@@ -23,43 +24,22 @@ public class Driver : MonoBehaviour
     public int current = 0;
     public int inc = 1;
 
+    bool imp_turn = true, about_turn = false;
+    float turn_angle = 40;
+
+    private Sensor sensor;
     // Start is called before the first frame update
     void Start()
     {
-        
+        sensor = new Sensor(lanecheck,l1, r1);
     }
 
-    private float CastRays(GameObject r_point, Vector3 Direction, bool lane_correct=false)
-    {
-        RaycastHit hit;
-        int raydistance = 2;
-        
-        if (Physics.Raycast(r_point.transform.position, r_point.transform.TransformDirection(Direction), out hit,raydistance))
-        {
-            if (hit.collider.tag == "road")
-            {
-                Debug.DrawRay(r_point.transform.position, r_point.transform.TransformDirection(Direction) * hit.distance, Color.green);
-
-                if(lane_correct)
-                {
-                    
-                    return -5;
-                    
-                }
-
-            }else if(hit.collider.tag=="offroad")
-            {
-                Debug.DrawRay(r_point.transform.position, r_point.transform.TransformDirection(Direction) * hit.distance, Color.red);
-            }
-
-        }
-      
-        return 0;
-    }
+    
 
     // Update is called once per frame
     void Update()
     {
+        //wait till the graph has finished loading
         if(nodes_graph.GetComponent<NodeGraph>().ready && !ready)
         {
             astar = nodes_graph.GetComponent<NodeGraph>().aStarManager;
@@ -85,12 +65,15 @@ public class Driver : MonoBehaviour
         {
             float angle = 0;
             if (current == 0)
+            {
+
+            }
                 //since we go the end from the start and back to the start which is 0 we end when we explored 0 already
-                if (current == -1)
-                {
-                    
-                    return;
-                }
+            if (current == -1)
+            {
+                current++;
+                inc = 1;
+            }
 
 
             if (current == count)// if reach end then iterate reverse
@@ -115,62 +98,97 @@ public class Driver : MonoBehaviour
             }
 
             
-            if (Mathf.Abs(Vector3.Distance(player, dest)) < 4)
+            if (Mathf.Abs(Vector3.Distance(player, dest)) < 2)
             {
-                float threshold = 0.1f;
-                if(current+inc < count && current+inc<=0)
+                float threshold = 2;
+                float nangle;
+                current+=inc;
+                imp_turn = true;
+                if(current==count || current==-1)
                 {
+                    about_turn = true;
+                }
+                
+                /*if (current + inc < count && current + inc >= 0)
+                {
+                   
                     Vector3 nsource, ndest, temp;
 
-                    nsource = ConnectionArray[current+inc].GetFromNode().transform.position;
+                    nsource = ConnectionArray[current + inc].GetFromNode().transform.position;
                     ndest = ConnectionArray[current + inc].GetToNode().transform.position;
 
                     Vector3 ntarget = ndest - nsource;
-                    if (inc==-1)
+                    if (inc == -1)
                     {
-                        ntarget =  nsource-ndest; // from and to nodes are opposite when travveling in reverse
+                        ntarget = nsource - ndest; // from and to nodes are opposite when travveling in reverse
                     }
 
+
+
+                    nangle = Vector3.SignedAngle(ntarget, transform.forward, new Vector3(0, -1, 0));
+
+                    if (nangle < 0 && Mathf.Abs(nangle) < 100)// if turning left turn a little early
+                    {
+
+                        threshold = 3.5f;
+                    }
                     
-
-                    float nangle = Vector3.SignedAngle(ntarget, transform.forward, new Vector3(0, -1, 0));
-
-                    if(nangle<0) // if turning left turn a little early
-                    {
-                        
-                        threshold = 3f;
-                    }
-
                 }
-
                 if (Mathf.Abs(Vector3.Distance(player, dest)) <= threshold)
                 {
                     current += inc;
-                    return;
-                }
+                    imp_turn = true;
+                    Debug.Log("turning");
+                }*/
             }
-
-
-
-            CastRays(r1, Vector3.right);
-            float lane_angle = CastRays(l1, Vector3.left,true);
 
 
             Vector3 target = dest - player;
 
             angle = Vector3.SignedAngle(target, transform.forward, new Vector3(0, -1, 0));
             
-           
-            
-            if(Mathf.Abs(lane_angle) > Mathf.Abs(angle))
+
+            if(about_turn)
             {
-                angle = lane_angle;
+                angle = Mathf.Abs(angle);
             }
-           
+            
+
+            float sensor_angle = sensor.check();
+
+            if (sensor.emergency)
+            {
+                angle = sensor_angle;
+            }
+            else if (imp_turn)
+            {
+                if (Mathf.Abs(angle) < 10)
+                {
+                    imp_turn = false;
+                    about_turn = false;
+                }
+                else
+                {
+                    angle = angle / 30;
+                }
+            }
             else
             {
-                angle = angle / 50;
+                if(angle>80)
+                {
+                    angle = angle / 40;
+                }
+                else
+                {
+                    angle = sensor_angle;
+                }
+                
             }
+
+            
+
+            
+            
             
 
             Quaternion rot = Quaternion.AngleAxis(angle, new Vector3(0, 1, 0));

@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\reference\AStarManager.cs" />
     <Compile Include="Assets\Scripts\reference\PathfindingList.cs" />
+    <Compile Include="Assets\Scripts\Drive\Sensor.cs" />
     <Compile Include="Assets\Scripts\reference\NodeRecord.cs" />
     <Compile Include="Assets\Scripts\reference\PathfindingTester.cs" />
     <Compile Include="Assets\Scripts\reference\Graph.cs" />
