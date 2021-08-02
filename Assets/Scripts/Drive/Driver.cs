@@ -19,7 +19,7 @@ public class Driver : MonoBehaviour
 
     private bool ready = false;
 
-    public float speed = 3f;
+    public float speed = 2f;
     public int count = 0;
     public int current = 0;
     public int inc = 1;
@@ -98,7 +98,7 @@ public class Driver : MonoBehaviour
             }
 
             
-            if (Mathf.Abs(Vector3.Distance(player, dest)) < 2)
+            if (Mathf.Abs(Vector3.Distance(player, dest)) < 3.5f)
             {
                 float threshold = 2;
                 float nangle;
@@ -146,16 +146,21 @@ public class Driver : MonoBehaviour
             Vector3 target = dest - player;
 
             angle = Vector3.SignedAngle(target, transform.forward, new Vector3(0, -1, 0));
-            
 
-            if(about_turn)
-            {
+
+            if (about_turn)
+            { 
+                
                 angle = Mathf.Abs(angle);
             }
             
 
             float sensor_angle = sensor.check();
 
+            if(Mathf.Abs(angle)<40)
+            {
+                about_turn = false;
+            }
             if (sensor.emergency)
             {
                 angle = sensor_angle;
@@ -169,14 +174,14 @@ public class Driver : MonoBehaviour
                 }
                 else
                 {
-                    angle = angle / 30;
+                    angle = angle / 40;
                 }
             }
             else
             {
-                if(angle>80)
+                if(Mathf.Abs(angle)>60)
                 {
-                    angle = angle / 40;
+                    angle = angle / 50;
                 }
                 else
                 {

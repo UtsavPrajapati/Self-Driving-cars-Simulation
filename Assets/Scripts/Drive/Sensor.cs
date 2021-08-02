@@ -26,7 +26,7 @@ public class Sensor : MonoBehaviour
         {
             if (hit.collider.tag == "road")
             {
-                Debug.DrawRay(r_point.transform.position, r_point.transform.TransformDirection(Direction) * hit.distance, Color.blue);
+                Debug.DrawRay(r_point.transform.position, r_point.transform.TransformDirection(Direction) * hit.distance, Color.magenta);
                 return 0;
             }
             else if(hit.collider.tag=="offroad")
@@ -55,14 +55,14 @@ public class Sensor : MonoBehaviour
         if(l1value==1)
         {
             emergency = true;
-            angle = 3;
+            angle = 2;
         }
 
         int r1value = CastRays(r1, Vector3.right);
         if(r1value==1)
         {
             emergency = true;
-            angle = -3;
+            angle = -2;
         }
 
         int lanecheck_value = CastRays(lane_checker, Vector3.left);
@@ -72,7 +72,7 @@ public class Sensor : MonoBehaviour
             lane_limit += 1;
             if (lane_limit<=5)
             {
-                angle = -1;
+                angle = -1f;
             }else if(lane_limit>20)
             {
                 lane_limit = 0;
