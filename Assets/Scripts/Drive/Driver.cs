@@ -13,13 +13,13 @@ public class Driver : MonoBehaviour
     public GameObject lanecheck;
     public GameObject r1;
     public GameObject l1;
-
+    public GameObject f_s,f_d;
     List<Connection> ConnectionArray = new List<Connection>();
 
 
     private bool ready = false;
 
-    public float speed = 2f;
+    public float speed = 3f;
     public int count = 0;
     public int current = 0;
     public int inc = 1;
@@ -31,7 +31,7 @@ public class Driver : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        sensor = new Sensor(lanecheck,l1, r1);
+        sensor = new Sensor(lanecheck,l1, r1,f_s, f_d);
     }
 
     
@@ -39,6 +39,8 @@ public class Driver : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float pdis = 0;
+
         //wait till the graph has finished loading
         if(nodes_graph.GetComponent<NodeGraph>().ready && !ready)
         {
@@ -100,6 +102,7 @@ public class Driver : MonoBehaviour
             
             if (Mathf.Abs(Vector3.Distance(player, dest)) < 3.5f)
             {
+                pdis = Vector3.Distance(player, dest);
                 float threshold = 2;
                 float nangle;
                 current+=inc;
@@ -147,17 +150,22 @@ public class Driver : MonoBehaviour
 
             angle = Vector3.SignedAngle(target, transform.forward, new Vector3(0, -1, 0));
 
-
+            if(angle<0)
+            {
+                Debug.Log(angle);
+            }
             if (about_turn)
             { 
                 
                 angle = Mathf.Abs(angle);
+                if (angle > 20)
+                    angle = 20;
             }
             
 
             float sensor_angle = sensor.check();
 
-            if(Mathf.Abs(angle)<40)
+            if(Mathf.Abs(angle)<30)
             {
                 about_turn = false;
             }
@@ -167,21 +175,26 @@ public class Driver : MonoBehaviour
             }
             else if (imp_turn)
             {
-                if (Mathf.Abs(angle) < 10)
+                if (Mathf.Abs(angle) < 8)
                 {
                     imp_turn = false;
                     about_turn = false;
                 }
                 else
                 {
-                    angle = angle / 40;
+                    //!((pdis * Vector3.Distance(player, dest) > 0) && angle > 0)
+                    
+                    { 
+                        angle = Mathf.Abs(angle)>35? angle / Mathf.Abs(angle) *35: angle;
+                    }
+                    
                 }
             }
             else
             {
                 if(Mathf.Abs(angle)>60)
                 {
-                    angle = angle / 50;
+                    angle = Mathf.Abs(angle) > 35 ? angle / Mathf.Abs(angle) * 35 : angle;
                 }
                 else
                 {
@@ -190,11 +203,11 @@ public class Driver : MonoBehaviour
                 
             }
 
-            
+
 
             
-            
-            
+
+            angle = angle * Time.deltaTime*5;
 
             Quaternion rot = Quaternion.AngleAxis(angle, new Vector3(0, 1, 0));
             

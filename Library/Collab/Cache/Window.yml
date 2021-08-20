@@ -14,8 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SimpleSelectedItems:
     m_Keys:
+    - Assets/Scripts/Drive/Driver.cs
+    - Assets/Scripts/Drive/Sensor.cs
+    - Assets/prefabs/Car/Agent.prefab
+    - ProjectSettings/ProjectSettings.asset
+    - ProjectSettings/TagManager.asset
     - 
-    m_Values: 01
+    m_Values: 000000000000
   RevisionSummary: 
   ChangesSearchValue: 
   SelectedHistoryRevision: 

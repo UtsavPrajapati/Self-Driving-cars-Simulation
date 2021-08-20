@@ -6,16 +6,18 @@ public class Sensor : MonoBehaviour
 {
 
 
-    public GameObject lane_checker, r1,l1;
+    public GameObject lane_checker, r1,l1,fs,fd;
 
     public bool emergency = false;
     private float lane_limit = 0, limit_cut=0;
     
-    public Sensor(GameObject lc,GameObject l_1, GameObject r_1)
+    public Sensor(GameObject lc,GameObject l_1, GameObject r_1, GameObject f_s, GameObject f_d)
     {
         lane_checker = lc;
         r1 = r_1;
         l1 = l_1;
+        fs = f_s;
+        fd = f_d;
     }
     private int CastRays(GameObject r_point, Vector3 Direction)
     {
@@ -42,7 +44,7 @@ public class Sensor : MonoBehaviour
         }
         else
         {
-            Debug.DrawRay(r_point.transform.position, r_point.transform.TransformDirection(Direction) * hit.distance, Color.green);
+            Debug.DrawRay(r_point.transform.position, r_point.transform.TransformDirection(Direction) * raydistance, Color.green);
             return 2;
         }
     }
@@ -51,18 +53,22 @@ public class Sensor : MonoBehaviour
     {
         emergency = false;
         float angle = 0;
+
+        int fsvalue = CastRays(fs, Vector3.forward);
+        int fdvalue = CastRays(fd, Vector3.forward);
+
         int l1value = CastRays(l1, Vector3.left);
         if(l1value==1)
         {
             emergency = true;
-            angle = 2;
+            angle = 30;
         }
 
         int r1value = CastRays(r1, Vector3.right);
         if(r1value==1)
         {
             emergency = true;
-            angle = -2;
+            angle = -30;
         }
 
         int lanecheck_value = CastRays(lane_checker, Vector3.left);
@@ -72,7 +78,7 @@ public class Sensor : MonoBehaviour
             lane_limit += 1;
             if (lane_limit<=5)
             {
-                angle = -1f;
+                angle = -30f;
             }else if(lane_limit>20)
             {
                 lane_limit = 0;
